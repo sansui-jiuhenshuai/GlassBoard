@@ -1,0 +1,111 @@
+<local:GlassWindow x:Class="GlassBoard.Launchpad"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:local="clr-namespace:GlassBoard"
+ Title="GlassBoard 应用面板" Width="780" Height="458" GlassRadius="28" WindowStartupLocation="Manual"
+ ShowInTaskbar="False" AllowDrop="True" DragOver="CheckDrop" Drop="ReceiveDrop" PreviewKeyDown="PanelKey">
+ <Window.Resources>
+  <Style TargetType="Button">
+   <Setter Property="Foreground" Value="White"/><Setter Property="Background" Value="#403E4856"/>
+   <Setter Property="Padding" Value="10,6"/><Setter Property="Margin" Value="2"/><Setter Property="BorderThickness" Value="0"/>
+   <Setter Property="Template">
+    <Setter.Value><ControlTemplate TargetType="Button">
+     <Border x:Name="Surface" CornerRadius="9" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
+             BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+     </Border>
+     <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="#70556579"/></Trigger></ControlTemplate.Triggers>
+    </ControlTemplate></Setter.Value>
+   </Setter>
+  </Style>
+  <Style TargetType="TextBox"><Setter Property="Background" Value="#75212A36"/><Setter Property="Foreground" Value="White"/>
+   <Setter Property="CaretBrush" Value="White"/><Setter Property="BorderBrush" Value="#556E7B8F"/>
+   <Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="Padding" Value="8,4"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TextBox">
+    <Border x:Name="Field" CornerRadius="12" BorderThickness="1" BorderBrush="#30FFFFFF"
+            Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+     <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+    </Border>
+    <ControlTemplate.Triggers><Trigger Property="IsKeyboardFocused" Value="True">
+     <Setter TargetName="Field" Property="BorderBrush" Value="#86B6D6F5"/>
+    </Trigger></ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+ </Window.Resources>
+ <Border Background="Transparent" BorderThickness="1" CornerRadius="28" Padding="20">
+  <Border.BorderBrush><LinearGradientBrush StartPoint="0,0" EndPoint="0.9,1">
+   <GradientStop Color="#A3EDFAFF" Offset="0"/><GradientStop Color="#36D5E8F2" Offset="0.48"/>
+   <GradientStop Color="#5894A8BA" Offset="1"/>
+  </LinearGradientBrush></Border.BorderBrush>
+  <Grid><Grid.RowDefinitions>
+   <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+  </Grid.RowDefinitions>
+   <DockPanel>
+    <Button DockPanel.Dock="Right" Content="×" Click="HidePanel" ToolTip="收起面板" AutomationProperties.Name="收起面板"/>
+    <Button DockPanel.Dock="Right" x:Name="SettingsButton" Content="设置" Click="OpenSettings"/>
+    <Button DockPanel.Dock="Right" Content="新建分类" Click="CreateCategory"/>
+    <Grid DockPanel.Dock="Right" Width="108" Margin="8,2,0,2">
+     <TextBox x:Name="CategoryName" MaxLength="40" ToolTip="新分类名称" AutomationProperties.Name="新分类名称"/>
+     <TextBlock Text="分类名称" Margin="9,0" VerticalAlignment="Center" Foreground="#A0DEE7F0" IsHitTestVisible="False">
+      <TextBlock.Style><Style TargetType="TextBlock">
+       <Setter Property="Visibility" Value="Collapsed"/>
+       <Style.Triggers><DataTrigger Binding="{Binding Text, ElementName=CategoryName}" Value="">
+        <Setter Property="Visibility" Value="Visible"/>
+       </DataTrigger></Style.Triggers>
+      </Style></TextBlock.Style>
+     </TextBlock>
+    </Grid>
+    <Grid Margin="0,2">
+     <TextBox x:Name="Search" Padding="34,5,10,5" MinHeight="32" TextChanged="SearchChanged" AutomationProperties.Name="搜索应用"/>
+     <Path IsHitTestVisible="False" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,0,0"
+           Stroke="#DCEAF4" StrokeThickness="1.5" StrokeEndLineCap="Round"
+           Data="M11.5,6 A5.5,5.5 0 1 1 0.5,6 A5.5,5.5 0 1 1 11.5,6 M10,10 L15,15"/>
+    </Grid>
+   </DockPanel>
+   <ScrollViewer Grid.Row="1" Margin="0,8" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+    <StackPanel x:Name="Tabs" Orientation="Horizontal"/>
+   </ScrollViewer>
+   <Grid Grid.Row="2" Background="Transparent" Drop="DropOnGrid">
+    <ItemsControl x:Name="Apps">
+     <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="3" Columns="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+     <ItemsControl.ItemTemplate><DataTemplate>
+      <Button ToolTip="{Binding Name}" AutomationProperties.Name="{Binding Name}" Background="Transparent" Loaded="PrepareMenu"
+              DragOver="OverTile" DragLeave="LeaveTile" Drop="DropOnTile" BorderBrush="#A6D6FF"
+              PreviewMouseLeftButtonDown="PressApp" PreviewMouseMove="DragApp" KeyDown="AppKey">
+       <StackPanel><Image Source="{Binding Icon}" Width="34" Height="34"/>
+        <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" MaxWidth="92" TextTrimming="CharacterEllipsis" Margin="0,4,0,0"/>
+       </StackPanel>
+      </Button>
+     </DataTemplate></ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <TextBlock x:Name="Empty" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#CCD6DF"/>
+   </Grid>
+   <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+    <TextBlock VerticalAlignment="Center" Text="透明度"/><TextBlock x:Name="GlassPercent" Width="38" VerticalAlignment="Center" TextAlignment="Center"/>
+    <Slider x:Name="GlassSlider" Width="96" Minimum="0" Maximum="100" TickFrequency="1"
+            IsSnapToTickEnabled="True" IsMoveToPointEnabled="True" AutomationProperties.Name="玻璃背景透明度"/>
+   </StackPanel>
+   <Popup x:Name="Settings" PlacementTarget="{Binding ElementName=SettingsButton}" Placement="Bottom"
+          AllowsTransparency="True" StaysOpen="False">
+    <Border Background="#FA27303B" CornerRadius="16" BorderBrush="#49A8B7C6" BorderThickness="1" Padding="18" Width="236">
+     <StackPanel>
+      <CheckBox x:Name="StartAtLogin" Content="登录时启动" Foreground="White" Margin="0,0,0,14"/>
+      <CheckBox x:Name="LockPosition" Content="锁定 Dock 位置" Foreground="White" Margin="0,0,0,14"/>
+      <TextBlock Text="Dock 显示前几项" Foreground="White" Margin="0,0,0,6"/>
+      <DockPanel><Button DockPanel.Dock="Right" Content="应用" Click="ApplyCount"/>
+       <TextBox x:Name="CountInput" Margin="0,2,6,2" AutomationProperties.Name="Dock 显示数量"/></DockPanel>
+      <TextBlock Text="玻璃透明度" Foreground="White" Margin="0,12,0,4"/>
+      <Slider Minimum="0" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" IsMoveToPointEnabled="True"
+              Value="{Binding Value, ElementName=GlassSlider, Mode=TwoWay}" AutomationProperties.Name="设置玻璃透明度"/>
+      <Button x:Name="ExitButton" Margin="0,14,0,0" Content="退出 GlassBoard" Click="ExitBoard"/>
+     </StackPanel>
+    </Border>
+   </Popup>
+   <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+    <Button x:Name="Previous" Content="‹" Click="PreviousPage" AutomationProperties.Name="上一页"/>
+    <TextBlock x:Name="PageNumber" VerticalAlignment="Center" Margin="10,0"/>
+    <Button x:Name="Next" Content="›" Click="NextPage" AutomationProperties.Name="下一页"/>
+   </StackPanel>
+  </Grid>
+ </Border>
+</local:GlassWindow>

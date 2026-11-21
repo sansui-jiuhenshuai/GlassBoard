@@ -1,0 +1,87 @@
+<local:GlassWindow x:Class="GlassBoard.DockWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:GlassBoard"
+    Title="GlassBoard" Icon="/GlassBoard;component/GlassBoard.ico" Width="292" Height="76"
+    ShowInTaskbar="False" ShowActivated="False"
+    WindowStartupLocation="Manual" UseLayoutRounding="True"
+    AllowDrop="True" PreviewDragOver="CheckDrop" PreviewDragEnter="CheckDrop" PreviewDrop="ImportDrop"
+    PreviewMouseLeftButtonDown="PressDock" PreviewMouseMove="MoveDock" PreviewMouseLeftButtonUp="ReleaseDock"
+    LostMouseCapture="CancelGesture">
+    <Border BorderThickness="1.25" CornerRadius="24" Background="Transparent">
+        <Border.BorderBrush><LinearGradientBrush StartPoint="0,0" EndPoint="0.8,1">
+            <GradientStop Color="#A3EDFAFF" Offset="0"/><GradientStop Color="#36D5E8F2" Offset="0.48"/>
+            <GradientStop Color="#5894A8BA" Offset="1"/>
+        </LinearGradientBrush></Border.BorderBrush>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Border x:Name="PanelHandle" Background="Transparent" Cursor="Hand"
+                    Padding="12,0,6,0" ToolTip="单击展开应用面板，按住可拖动 Dock">
+                <Border Width="38" Height="38" CornerRadius="10" Background="#507BDC">
+                    <UniformGrid Rows="3" Columns="3" Width="21" Height="21">
+                        <UniformGrid.Resources>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="White"/>
+                                <Setter Property="Width" Value="4"/>
+                                <Setter Property="Height" Value="4"/>
+                            </Style>
+                        </UniformGrid.Resources>
+                        <Ellipse/><Ellipse/><Ellipse/>
+                        <Ellipse/><Ellipse/><Ellipse/>
+                        <Ellipse/><Ellipse/><Ellipse/>
+                    </UniformGrid>
+                </Border>
+            </Border>
+            <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                          Margin="8,0" VerticalContentAlignment="Center">
+                <ItemsControl x:Name="DroppedItems" Height="54" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Width="76" Padding="3,2" BorderThickness="0" Background="Transparent"
+                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    Cursor="Hand" ToolTip="{Binding Name}" AutomationProperties.Name="{Binding Name}"
+                                    KeyDown="ItemKeyDown" Loaded="PrepareMenu">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="Tile" CornerRadius="7" Background="{TemplateBinding Background}"
+                                                Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.7">
+                                                <ContentPresenter.RenderTransform>
+                                                    <ScaleTransform x:Name="Zoom"/>
+                                                </ContentPresenter.RenderTransform>
+                                            </ContentPresenter>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Tile" Property="Background" Value="#24FFFFFF"/>
+                                                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="Zoom" Storyboard.TargetProperty="ScaleX" To="1.10" Duration="0:0:0.14"/>
+                                                    <DoubleAnimation Storyboard.TargetName="Zoom" Storyboard.TargetProperty="ScaleY" To="1.10" Duration="0:0:0.14"/>
+                                                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                                                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="Zoom" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.14"/>
+                                                    <DoubleAnimation Storyboard.TargetName="Zoom" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.14"/>
+                                                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <StackPanel>
+                                    <Image Source="{Binding Icon}" Width="32" Height="32"/>
+                                    <TextBlock Text="{Binding Name}" FontSize="11" Margin="0,2,0,0"
+                                               TextAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</local:GlassWindow>
